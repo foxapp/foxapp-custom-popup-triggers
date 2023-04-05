@@ -60,6 +60,14 @@ class PluginInitHooks {
                         window.addEventListener('elementor/popup/show', (event) => {
                             const id = event.detail.id;
                             const instance = event.detail.instance;
+
+                            /******* START MAGIC CODE *******/
+                            const popups = document.querySelectorAll('.elementor-popup-modal');
+                            for (let i = 0; i < popups.length; i++) {
+                                if( i === 0 && popups.length > 1) { popups[i].style.display = 'none'; }
+                            }
+                            /******* END MAGIC CODE *******/
+
                             if (id === <?php echo $popup_id;?> ) {
 								<?php if($cpt_debug){ ?> console.log('elementor/popup/show', id); <?php } ?>
                                 clearInterval(cptRegisteredPopup);
@@ -71,7 +79,7 @@ class PluginInitHooks {
                             const instance = event.detail.instance;
                             if (id === <?php echo $popup_id;?> ) {
 								<?php if($cpt_debug){ ?> console.log('elementor/popup/hide', id); <?php } ?>
-                                cptStartShowPopup()
+                                cptStartShowPopup();
                             }
                         });
                     });
