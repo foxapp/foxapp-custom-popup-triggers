@@ -85,7 +85,7 @@ class PluginInitHooks {
                     });
                 });
             });
-        </script>;
+        </script>
 		<?php
 
 		return;
