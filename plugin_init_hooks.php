@@ -48,12 +48,24 @@ class PluginInitHooks {
 						<?php if($cpt_debug){ ?> console.log('components:init'); <?php } ?>
 
                         let cptRegisteredPopup = setInterval(() => {
-                            elementorFrontend.documentsManager.documents[<?php echo $popup_id;?>].showModal();
+                            if(typeof(elementorFrontend.documentsManager.documents[<?php echo $popup_id;?>]) !== 'undefined'){
+                                if( jQuery('.dialog-widget').is(':visible') ){
+                                    console.log('Conflicted with another popup');
+                                    return;
+                                }
+                                elementorFrontend.documentsManager.documents[<?php echo $popup_id;?>].showModal();
+                            }
                         }, <?php echo $cpt_popup_seconds; ?>);
 
                         function cptStartShowPopup() {
                             cptRegisteredPopup = setInterval(() => {
-                                elementorFrontend.documentsManager.documents[<?php echo $popup_id;?>].showModal();
+                                if(typeof(elementorFrontend.documentsManager.documents[<?php echo $popup_id;?>]) !== 'undefined'){
+                                    if( jQuery('.dialog-widget').is(':visible') ){
+                                        console.log('Conflicted with another popup');
+                                        return;
+                                    }
+                                    elementorFrontend.documentsManager.documents[<?php echo $popup_id;?>].showModal();
+                                }
                             }, <?php echo $cpt_popup_seconds; ?>);
                         }
 
