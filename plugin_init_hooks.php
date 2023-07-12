@@ -30,6 +30,12 @@ class PluginInitHooks {
 		}
 
 		$cpt_popup_id      = get_option( 'popup_id' . $this->plugin_identifier );
+
+		if( pll_current_language() != 'en' ){
+			// Get the translated post ID
+			$cpt_popup_id = pll_get_post($cpt_popup_id, pll_current_language());
+		}
+
 		$cpt_popup_seconds = (int) get_option( 'popup_seconds' . $this->plugin_identifier ) * 1000;
 
 		$popup_id = pll_get_post( $cpt_popup_id, pll_current_language() );

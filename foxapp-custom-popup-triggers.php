@@ -6,7 +6,7 @@ namespace FoxApp\CustomPopupTrigger;
 Plugin Name: FoxApp - Custom Elementor Popup Triggers
 Plugin URI: https://plugins.foxapp.net/
 Description: Plugin adds additional triggers to Elementor Pro Popups.
-Version: 1.1.0
+Version: 1.1.1
 Author: FoxApp
 Author URI: https://plugins.foxapp.net/
 Requires at least: 6.0

@@ -96,7 +96,7 @@ class PluginAdminPage {
                             </td>
                         </tr>
                         <tr class="cpt_popup_id">
-                            <td scope="row"><label for="cpt_popup_id">Popup ID <sup>*</sup></label></td>
+                            <td scope="row"><label for="cpt_popup_id">Popup ID <sup>*</sup></label><br><small>If you have multiple languages please use ID of English Popup</small> </td>
                             <td><input type="text"
                                        id="cpt_popup_id"
                                        name="cpt_popup_id"
