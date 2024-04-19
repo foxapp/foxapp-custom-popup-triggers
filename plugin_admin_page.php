@@ -64,21 +64,26 @@ class PluginAdminPage {
 			update_option( 'debug' . $this->plugin_identifier, sanitize_text_field( $_POST['cpt_debug'] ?? 0 ), 'yes' );
 			update_option( 'popup_id' . $this->plugin_identifier, sanitize_text_field( $_POST['cpt_popup_id'] ?? '' ), 'yes' );
 			update_option( 'popup_seconds' . $this->plugin_identifier, sanitize_text_field( $_POST['cpt_popup_seconds'] ?? '' ), 'yes' );
-			update_option( 'exclude_from_pages' . $this->plugin_identifier, implode(',',$_POST['cpt_exclude_from_pages']?? []) , 'yes' );
+			update_option( 'exclude_from_pages' . $this->plugin_identifier, implode( ',', $_POST['cpt_exclude_from_pages'] ?? [] ), 'yes' );
 		}
 
-		$cpt_enabled       = get_option( 'enabled' . $this->plugin_identifier );
-		$cpt_debug         = get_option( 'debug' . $this->plugin_identifier );
-		$cpt_popup_id      = get_option( 'popup_id' . $this->plugin_identifier ) ?? 0;
-		$cpt_popup_seconds = get_option( 'popup_seconds' . $this->plugin_identifier ) ?? 0;
+		$cpt_enabled            = get_option( 'enabled' . $this->plugin_identifier );
+		$cpt_debug              = get_option( 'debug' . $this->plugin_identifier );
+		$cpt_popup_id           = get_option( 'popup_id' . $this->plugin_identifier ) ?? 0;
+		$cpt_popup_seconds      = get_option( 'popup_seconds' . $this->plugin_identifier ) ?? 0;
 		$cpt_exclude_from_pages = get_option( 'exclude_from_pages' . $this->plugin_identifier ) ?? [];
 		$cpt_exclude_from_pages = explode( ',', $cpt_exclude_from_pages );
 		?>
         <style>
-            .list_popups td { padding: 5px; }
-            .list_popups tbody td { border-bottom: 1px solid #fff; }
+            .list_popups td {
+                padding: 5px;
+            }
+
+            .list_popups tbody td {
+                border-bottom: 1px solid #fff;
+            }
         </style>
-        <link type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
         <form method="post">
 			<?php wp_nonce_field( $action . '_nonce_action', $action . '_nonce_field' ); ?>
             <input type="hidden" name="action" value="<?php echo $action ?>">
@@ -96,7 +101,8 @@ class PluginAdminPage {
                             </td>
                         </tr>
                         <tr class="cpt_popup_id">
-                            <td scope="row"><label for="cpt_popup_id">Popup ID <sup>*</sup></label><br><small>If you have multiple languages please use ID of English Popup</small> </td>
+                            <td scope="row"><label for="cpt_popup_id">Popup ID <sup>*</sup></label><br><small>If you
+                                    have multiple languages please use ID of English Popup</small></td>
                             <td><input type="text"
                                        id="cpt_popup_id"
                                        name="cpt_popup_id"
@@ -118,20 +124,20 @@ class PluginAdminPage {
                             <td>
                                 <select
                                         id="cpt_exclude_from_pages"
-                                        name="cpt_exclude_from_pages"
+                                        name="cpt_exclude_from_pages[]"
                                         class="select2"
-                                        multiple
+                                        multiple="multiple"
                                 >
                                     <option value="">No page selected!</option>
-	                                <?php
-	                                $pages = get_pages();
-	                                foreach ( $pages as $page ) {
-		                                $option = '<option value="' . $page->ID . '" '.selected(in_array($page->ID, $cpt_exclude_from_pages )).'>';
-		                                $option .= $page->post_title;
-		                                $option .= '</option>';
-		                                echo $option;
-	                                }
-	                                ?>
+									<?php
+									$pages = get_pages();
+									foreach ( $pages as $page ) {
+										$option = '<option value="' . $page->ID . '" ' . selected( in_array( $page->ID, $cpt_exclude_from_pages ) ) . '>';
+										$option .= $page->post_title;
+										$option .= '</option>';
+										echo $option;
+									}
+									?>
                                 </select>
                             </td>
                         </tr>
@@ -148,13 +154,13 @@ class PluginAdminPage {
                     </table>
                 </div>
                 <div style="min-width:500px;padding-left:30px">
-                    <h2><?php _e('List Elementor Popup\'s');?></h2>
+                    <h2><?php _e( 'List Elementor Popup\'s' ); ?></h2>
                     <table class="list_popups" style="width: 100%">
                         <thead style="background-color: #aa9d88">
-                            <tr>
-                                <td style="width: 100px"><strong>Popup ID</strong></td>
-                                <td><strong>Name</strong></td>
-                            </tr>
+                        <tr>
+                            <td style="width: 100px"><strong>Popup ID</strong></td>
+                            <td><strong>Name</strong></td>
+                        </tr>
                         </thead>
                         <tbody>
 						<?php
@@ -186,8 +192,8 @@ class PluginAdminPage {
                    value="<?php echo __( "Save settings", $this->plugin_text_domain ) ?>"/>
         </form>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-            <script>
-                jQuery("#cpt_exclude_from_pages").select2();
+        <script>
+            jQuery("#cpt_exclude_from_pages").select2();
         </script>
 		<?php
 	}
