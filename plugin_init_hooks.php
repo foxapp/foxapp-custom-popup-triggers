@@ -23,6 +23,7 @@ class PluginInitHooks {
 	}
 
 	public function inject_hooks() {
+		global $post;
 		$cpt_enabled = (bool) get_option( 'enabled' . $this->plugin_identifier );
 		$cpt_debug   = (bool) get_option( 'debug' . $this->plugin_identifier );
 		if ( ! $cpt_enabled ) {
@@ -34,35 +35,27 @@ class PluginInitHooks {
 		if( pll_current_language() != 'en' ){
 			// Get the translated post ID
 			$new_popup_id = pll_get_post($popup_id, pll_current_language());
-            if( $new_popup_id ) {
-	            $popup_id = $new_popup_id;
-            }
+			if( $new_popup_id ) {
+				$popup_id = $new_popup_id;
+			}
 		}
 
 		$cpt_popup_seconds = (int) get_option( 'popup_seconds' . $this->plugin_identifier ) * 1000;
+		$cpt_exclude_from_pages = get_option( 'exclude_from_pages' . $this->plugin_identifier ) ?? [];
+		$cpt_exclude_from_pages = explode( ',', $cpt_exclude_from_pages );
 
-        //Register Popup to current page
-		\ElementorPro\Modules\Popup\Module::add_popup_to_location( $popup_id );
-		?>
-        <script>
-            jQuery(document).ready(function () {
-                jQuery(window).on('elementor/frontend/init', function () { //wait for elementor to load
-					<?php if($cpt_debug){ ?> console.log('elementor/frontend/init'); <?php } ?>
-                    elementorFrontend.on('components:init', function () { //wait for elementor pro to load
-						<?php if($cpt_debug){ ?> console.log('components:init'); <?php } ?>
+		if(is_object($post) && isset($post->ID) && !in_array($post->ID, $cpt_exclude_from_pages) && !isset($_COOKIE['safe_mode'])){
+			//Register Popup to current page
+			\ElementorPro\Modules\Popup\Module::add_popup_to_location( $popup_id );
+			?>
+            <script>
+                jQuery(document).ready(function () {
+                    jQuery(window).on('elementor/frontend/init', function () { //wait for elementor to load
+						<?php if($cpt_debug){ ?> console.log('elementor/frontend/init'); <?php } ?>
+                        elementorFrontend.on('components:init', function () { //wait for elementor pro to load
+							<?php if($cpt_debug){ ?> console.log('components:init'); <?php } ?>
 
-                        let cptRegisteredPopup = setInterval(() => {
-                            if(typeof(elementorFrontend.documentsManager.documents[<?php echo $popup_id;?>]) !== 'undefined'){
-                                if( jQuery('.dialog-widget').is(':visible') ){
-                                    console.log('Conflicted with another popup');
-                                    return;
-                                }
-                                elementorFrontend.documentsManager.documents[<?php echo $popup_id;?>].showModal();
-                            }
-                        }, <?php echo $cpt_popup_seconds; ?>);
-
-                        function cptStartShowPopup() {
-                            cptRegisteredPopup = setInterval(() => {
+                            let cptRegisteredPopup = setInterval(() => {
                                 if(typeof(elementorFrontend.documentsManager.documents[<?php echo $popup_id;?>]) !== 'undefined'){
                                     if( jQuery('.dialog-widget').is(':visible') ){
                                         console.log('Conflicted with another popup');
@@ -71,38 +64,50 @@ class PluginInitHooks {
                                     elementorFrontend.documentsManager.documents[<?php echo $popup_id;?>].showModal();
                                 }
                             }, <?php echo $cpt_popup_seconds; ?>);
-                        }
 
-                        window.addEventListener('elementor/popup/show', (event) => {
-                            const id = event.detail.id;
-                            const instance = event.detail.instance;
-
-                            /******* START MAGIC CODE *******/
-                            const popups = document.querySelectorAll('.elementor-popup-modal');
-                            for (let i = 0; i < popups.length; i++) {
-                                if( i === 0 && popups.length > 1) { popups[i].style.display = 'none'; }
+                            function cptStartShowPopup() {
+                                cptRegisteredPopup = setInterval(() => {
+                                    if(typeof(elementorFrontend.documentsManager.documents[<?php echo $popup_id;?>]) !== 'undefined'){
+                                        if( jQuery('.dialog-widget').is(':visible') ){
+                                            console.log('Conflicted with another popup');
+                                            return;
+                                        }
+                                        elementorFrontend.documentsManager.documents[<?php echo $popup_id;?>].showModal();
+                                    }
+                                }, <?php echo $cpt_popup_seconds; ?>);
                             }
-                            /******* END MAGIC CODE *******/
 
-                            if (id === <?php echo $popup_id;?> ) {
-								<?php if($cpt_debug){ ?> console.log('elementor/popup/show', id); <?php } ?>
-                                clearInterval(cptRegisteredPopup);
-                            }
-                        });
+                            window.addEventListener('elementor/popup/show', (event) => {
+                                const id = event.detail.id;
+                                const instance = event.detail.instance;
 
-                        window.addEventListener('elementor/popup/hide', (event) => {
-                            const id = event.detail.id;
-                            const instance = event.detail.instance;
-                            if (id === <?php echo $popup_id;?> ) {
-								<?php if($cpt_debug){ ?> console.log('elementor/popup/hide', id); <?php } ?>
-                                cptStartShowPopup();
-                            }
+                                /******* START MAGIC CODE *******/
+                                const popups = document.querySelectorAll('.elementor-popup-modal');
+                                for (let i = 0; i < popups.length; i++) {
+                                    if( i === 0 && popups.length > 1) { popups[i].style.display = 'none'; }
+                                }
+                                /******* END MAGIC CODE *******/
+
+                                if (id === <?php echo $popup_id;?> ) {
+									<?php if($cpt_debug){ ?> console.log('elementor/popup/show', id); <?php } ?>
+                                    clearInterval(cptRegisteredPopup);
+                                }
+                            });
+
+                            window.addEventListener('elementor/popup/hide', (event) => {
+                                const id = event.detail.id;
+                                const instance = event.detail.instance;
+                                if (id === <?php echo $popup_id;?> ) {
+									<?php if($cpt_debug){ ?> console.log('elementor/popup/hide', id); <?php } ?>
+                                    cptStartShowPopup();
+                                }
+                            });
                         });
                     });
                 });
-            });
-        </script>
-		<?php
+            </script>
+			<?php
+		}
 
 		return;
 	}
